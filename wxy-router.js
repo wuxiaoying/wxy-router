@@ -1,11 +1,22 @@
 (function() {
-  var importedUris, previousRoute, router;
+  var extend, importedUris, previousRoute, router;
 
   router = new RouteRecognizer();
 
   importedUris = {};
 
   previousRoute = void 0;
+
+  extend = function(src, extendees) {
+    var extendee, key, value, _i, _len;
+    for (_i = 0, _len = extendees.length; _i < _len; _i++) {
+      extendee = extendees[_i];
+      for (key in extendee) {
+        value = extendee[key];
+        src[key] = value;
+      }
+    }
+  };
 
   Polymer({
     attached: function() {
@@ -14,8 +25,8 @@
       window.addEventListener('popstate', this._OnStateChange.bind(this));
     },
     go: function(uri, _arg) {
-      var data, options;
-      data = _arg.data, options = _arg.options;
+      var data, options, _ref;
+      _ref = _arg != null ? _arg : {}, data = _ref.data, options = _ref.options;
       if (options == null) {
         options = {};
       }
@@ -77,27 +88,14 @@
       }
     },
     _Activate: function(match) {
-      var customElement, elementName, model, property, route, value, _ref, _ref1;
+      var customElement, elementName, model, route;
       route = match.handler;
       elementName = route.name;
       customElement = document.createElement(elementName);
       model = {
         router: this
       };
-      for (property in model) {
-        value = model[property];
-        customElement[property] = value;
-      }
-      _ref = match.params;
-      for (property in _ref) {
-        value = _ref[property];
-        customElement[property] = value;
-      }
-      _ref1 = match.data;
-      for (property in _ref1) {
-        value = _ref1[property];
-        customElement[property] = value;
-      }
+      extend(customElement, [model, match.params, match.data]);
       this._RemoveContent(previousRoute);
       previousRoute = route;
       route.appendChild(customElement);

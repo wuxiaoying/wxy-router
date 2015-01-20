@@ -2,6 +2,13 @@ router = new RouteRecognizer()
 importedUris = {}
 previousRoute = undefined
 
+extend = (src, extendees) ->
+  for extendee in extendees
+    for key, value of extendee
+      src[key] = value
+
+  return
+
 Polymer
   attached: ->
     @_AddRoutes()
@@ -9,10 +16,7 @@ Polymer
     window.addEventListener 'popstate', @_OnStateChange.bind @
     return
 
-  go: (uri,
-    data: data
-    options: options
-  ) ->
+  go: (uri, {data, options} = {}) ->
     options ?= {}
     uri = '#' + uri
     if options.replace
@@ -76,14 +80,7 @@ Polymer
     model =
       router: @
 
-    for property, value of model
-      customElement[property] = value
-
-    for property, value of match.params
-      customElement[property] = value
-
-    for property, value of match.data
-      customElement[property] = value
+    extend customElement, [model, match.params, match.data]
 
     @_RemoveContent previousRoute
     previousRoute = route
