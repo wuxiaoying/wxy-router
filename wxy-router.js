@@ -1,5 +1,6 @@
 (function() {
-  var extend, importedUris, previousRoute, router;
+  var extend, importedUris, previousRoute, router,
+    __slice = [].slice;
 
   router = new RouteRecognizer();
 
@@ -7,8 +8,9 @@
 
   previousRoute = void 0;
 
-  extend = function(src, extendees) {
-    var extendee, key, value, _i, _len;
+  extend = function() {
+    var extendee, extendees, key, src, value, _i, _len;
+    src = arguments[0], extendees = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
     for (_i = 0, _len = extendees.length; _i < _len; _i++) {
       extendee = extendees[_i];
       for (key in extendee) {
@@ -95,7 +97,7 @@
       model = {
         router: this
       };
-      extend(customElement, [model, match.params, match.data]);
+      extend(customElement, model, match.params, match.data);
       this._RemoveContent(previousRoute);
       previousRoute = route;
       route.appendChild(customElement);

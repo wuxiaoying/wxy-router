@@ -2,7 +2,7 @@ router = new RouteRecognizer()
 importedUris = {}
 previousRoute = undefined
 
-extend = (src, extendees) ->
+extend = (src, extendees...) ->
   for extendee in extendees
     for key, value of extendee
       src[key] = value
@@ -80,7 +80,7 @@ Polymer
     model =
       router: @
 
-    extend customElement, [model, match.params, match.data]
+    extend customElement, model, match.params, match.data
 
     @_RemoveContent previousRoute
     previousRoute = route
