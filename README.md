@@ -1,2 +1,2 @@
 # wxy-router
-Simple polymer router version of app-router. Mostly writing for practice to understand polymer more :)
+Simple polymer router. Mostly writing for practice to understand polymer more :)

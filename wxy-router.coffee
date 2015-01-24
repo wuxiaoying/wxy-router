@@ -49,26 +49,11 @@ Polymer
     return
 
   _Import: (match) ->
-    route = match.handler
+    uri = match.handler.import
 
-    uri = route.import
-
-    activate = =>
+    Polymer.import [uri], =>
       @_Activate match
       return
-
-    if !importedUris[uri]
-      importLink = document.createElement 'link'
-      importLink.setAttribute 'rel', 'import'
-      importLink.setAttribute 'href', uri
-      importLink.addEventListener 'load', activate
-      document.head.appendChild importLink
-    else
-      importLink = document.querySelector "link[href=6'#{uri}']"
-      if importLink.import
-        activate()
-      else
-        importLink.addEventListener 'load', activate
 
     return
 
@@ -88,11 +73,10 @@ Polymer
     return
 
   _RemoveContent: (route) ->
-    if route
-      node = route.firstChild
-      while node
-        nodeToRemove = node
-        node = node.nextSibling
-        if nodeToRemove.tagName isnt 'TEMPLATE'
-          route.removeChild nodeToRemove
+    return if not route
+
+    node = route.firstChild
+    while nodeToRemove = route.firstChild
+      route.removeChild nodeToRemove
+
     return

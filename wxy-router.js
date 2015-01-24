@@ -66,28 +66,13 @@
       this._Import(match);
     },
     _Import: function(match) {
-      var activate, importLink, route, uri;
-      route = match.handler;
-      uri = route["import"];
-      activate = (function(_this) {
+      var uri;
+      uri = match.handler["import"];
+      Polymer["import"]([uri], (function(_this) {
         return function() {
           _this._Activate(match);
         };
-      })(this);
-      if (!importedUris[uri]) {
-        importLink = document.createElement('link');
-        importLink.setAttribute('rel', 'import');
-        importLink.setAttribute('href', uri);
-        importLink.addEventListener('load', activate);
-        document.head.appendChild(importLink);
-      } else {
-        importLink = document.querySelector("link[href=6'" + uri + "']");
-        if (importLink["import"]) {
-          activate();
-        } else {
-          importLink.addEventListener('load', activate);
-        }
-      }
+      })(this));
     },
     _Activate: function(match) {
       var customElement, elementName, model, route;
@@ -104,15 +89,12 @@
     },
     _RemoveContent: function(route) {
       var node, nodeToRemove;
-      if (route) {
-        node = route.firstChild;
-        while (node) {
-          nodeToRemove = node;
-          node = node.nextSibling;
-          if (nodeToRemove.tagName !== 'TEMPLATE') {
-            route.removeChild(nodeToRemove);
-          }
-        }
+      if (!route) {
+        return;
+      }
+      node = route.firstChild;
+      while (nodeToRemove = route.firstChild) {
+        route.removeChild(nodeToRemove);
       }
     }
   });
