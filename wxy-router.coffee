@@ -1,5 +1,4 @@
 router = new RouteRecognizer()
-importedUris = {}
 previousRoute = undefined
 
 extend = (src, extendees...) ->

@@ -1,10 +1,8 @@
 (function() {
-  var extend, importedUris, previousRoute, router,
+  var extend, previousRoute, router,
     __slice = [].slice;
 
   router = new RouteRecognizer();
-
-  importedUris = {};
 
   previousRoute = void 0;
 
