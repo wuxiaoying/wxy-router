@@ -1,6 +1,3 @@
-router = new RouteRecognizer()
-previousRoute = undefined
-
 extend = (src, extendees...) ->
   for extendee in extendees
     for key, value of extendee
@@ -8,8 +5,24 @@ extend = (src, extendees...) ->
 
   return
 
+routers = {}
+registerRouter = (router) ->
+  routers[router.key] = router
+  return
+
+deregisterRouter = (router) ->
+  delete routers[router.key]
+  return
+
 Polymer
+  detached: ->
+    deregisterRouter @
+    return
+
   attached: ->
+    registerRouter @
+    @router = new RouteRecognizer()
+    @previousRoute = undefined
     @_AddRoutes()
     @_OnStateChange()
     window.addEventListener 'popstate', @_OnStateChange.bind @
@@ -23,7 +36,8 @@ Polymer
     else
       window.history.pushState null, null, uri
 
-    @_OnStateChange data
+    for key, router of routers
+      router._OnStateChange data
     return
 
   _AddRoutes: ->
@@ -32,7 +46,7 @@ Polymer
     for route in routes
       handler = handlers[route.path] = route
 
-      router.add [
+      @router.add [
         path: route.path
         handler: handler
       ]
@@ -40,9 +54,10 @@ Polymer
     return
 
   _OnStateChange: (data) ->
-    result = router.recognize window.location.hash.substring 1
+    result = @router.recognize window.location.hash.substring 1
     return if not result?.length > 0
     match = result[0]
+    return if match.handler is @previousRoute
     match.data = data
     @_Import match
     return
@@ -66,8 +81,8 @@ Polymer
 
     extend customElement, model, match.params, match.data
 
-    @_RemoveContent previousRoute
-    previousRoute = route
+    @_RemoveContent @previousRoute
+    @previousRoute = route
     route.appendChild customElement
     return
 

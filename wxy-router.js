@@ -1,10 +1,6 @@
 (function() {
-  var extend, previousRoute, router,
+  var deregisterRouter, extend, registerRouter, routers,
     __slice = [].slice;
-
-  router = new RouteRecognizer();
-
-  previousRoute = void 0;
 
   extend = function() {
     var extendee, extendees, key, src, value, _i, _len;
@@ -18,14 +14,30 @@
     }
   };
 
+  routers = {};
+
+  registerRouter = function(router) {
+    routers[router.key] = router;
+  };
+
+  deregisterRouter = function(router) {
+    delete routers[router.key];
+  };
+
   Polymer({
+    detached: function() {
+      deregisterRouter(this);
+    },
     attached: function() {
+      registerRouter(this);
+      this.router = new RouteRecognizer();
+      this.previousRoute = void 0;
       this._AddRoutes();
       this._OnStateChange();
       window.addEventListener('popstate', this._OnStateChange.bind(this));
     },
     go: function(uri, _arg) {
-      var data, options, _ref;
+      var data, key, options, router, _ref;
       _ref = _arg != null ? _arg : {}, data = _ref.data, options = _ref.options;
       if (options == null) {
         options = {};
@@ -36,7 +48,10 @@
       } else {
         window.history.pushState(null, null, uri);
       }
-      this._OnStateChange(data);
+      for (key in routers) {
+        router = routers[key];
+        router._OnStateChange(data);
+      }
     },
     _AddRoutes: function() {
       var handler, handlers, route, routes, _i, _len;
@@ -45,7 +60,7 @@
       for (_i = 0, _len = routes.length; _i < _len; _i++) {
         route = routes[_i];
         handler = handlers[route.path] = route;
-        router.add([
+        this.router.add([
           {
             path: route.path,
             handler: handler
@@ -55,11 +70,14 @@
     },
     _OnStateChange: function(data) {
       var match, result;
-      result = router.recognize(window.location.hash.substring(1));
+      result = this.router.recognize(window.location.hash.substring(1));
       if (!(result != null ? result.length : void 0) > 0) {
         return;
       }
       match = result[0];
+      if (match.handler === this.previousRoute) {
+        return;
+      }
       match.data = data;
       this._Import(match);
     },
@@ -81,8 +99,8 @@
         router: this
       };
       extend(customElement, model, match.params, match.data);
-      this._RemoveContent(previousRoute);
-      previousRoute = route;
+      this._RemoveContent(this.previousRoute);
+      this.previousRoute = route;
       route.appendChild(customElement);
     },
     _RemoveContent: function(route) {
