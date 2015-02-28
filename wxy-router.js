@@ -25,9 +25,6 @@
   };
 
   Polymer({
-    detached: function() {
-      deregisterRouter(this);
-    },
     attached: function() {
       registerRouter(this);
       this.router = new RouteRecognizer();
@@ -35,6 +32,9 @@
       this._AddRoutes();
       this._OnStateChange();
       window.addEventListener('popstate', this._OnStateChange.bind(this));
+    },
+    detached: function() {
+      deregisterRouter(this);
     },
     go: function(uri, _arg) {
       var data, key, options, router, _ref;
@@ -82,13 +82,17 @@
       this._Import(match);
     },
     _Import: function(match) {
-      var uri;
-      uri = match.handler["import"];
-      Polymer["import"]([uri], (function(_this) {
-        return function() {
-          _this._Activate(match);
-        };
-      })(this));
+      var importUri;
+      importUri = match.handler["import"];
+      if (importUri) {
+        Polymer["import"]([importUri], (function(_this) {
+          return function() {
+            _this._Activate(match);
+          };
+        })(this));
+      } else {
+        this._Activate(match);
+      }
     },
     _Activate: function(match) {
       var customElement, elementName, model, route;

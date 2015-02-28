@@ -15,10 +15,6 @@ deregisterRouter = (router) ->
   return
 
 Polymer
-  detached: ->
-    deregisterRouter @
-    return
-
   attached: ->
     registerRouter @
     @router = new RouteRecognizer()
@@ -26,6 +22,10 @@ Polymer
     @_AddRoutes()
     @_OnStateChange()
     window.addEventListener 'popstate', @_OnStateChange.bind @
+    return
+
+  detached: ->
+    deregisterRouter @
     return
 
   go: (uri, {data, options} = {}) ->
@@ -63,11 +63,14 @@ Polymer
     return
 
   _Import: (match) ->
-    uri = match.handler.import
+    importUri = match.handler.import
 
-    Polymer.import [uri], =>
+    if importUri
+      Polymer.import [importUri], =>
+        @_Activate match
+        return
+    else
       @_Activate match
-      return
 
     return
 
